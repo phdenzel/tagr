@@ -1,0 +1,31 @@
+\#+AUTHOR: phdenzel
+#+TITLE: tagr
+#+DATE: 2022-11-04 Fri
+#+OPTIONS: author:nil title:t date:nil timestamp:nil toc:nil num:nil \n:nil
+
+This is a tagging/bookmarking program. Similar to the
+dmenu-integration for ~pass~, ~tagr~ can access its tags using dmenu.
+It stores and retrieves tags from a single file stored locally in
+~$XDG_CONFIG_HOME~, by defaults in ~~/.config/tagr/~.
+
+
+* Install
+
+Install ~tagr~ using
+#+begin_src shell
+sudo make install
+#+end_src
+This will install the script to ~/usr/local/bin/~ which should already
+be in your PATH, and the list of tags in ~$XDG_CONFIG_HOME/tags~.
+
+Alternatively you can run
+#+begin_src shell
+PREFIX=/path/of/your/choice make install
+#+end_src
+which might need sudo priviliges depending on your choice.
+Don't forget to add the chosen prefix to your PATH.
+
+To uninstall ~tagr~ (from any location), simply run
+#+begin_src shell
+sudo make uninstall
+#+end_src

@@ -1,0 +1,104 @@
+#!/bin/bash
+# Requires the rename command (part of the util-linux package)
+
+# Defaults
+TAGR_CONF="${HOME}/.config/tagr/tags"
+TAGR_TAG=""
+TAGR_INDEX=1
+TAGR_INPUT=""
+TAGR_LABEL=""
+APPEND_MODE=0
+TO_CLIPBOARD=0
+
+DMENU_L=20
+NOTIFY_T=3500
+
+# xdotool type $(grep -v '^#' $TAGR_CONF | dmenu -i -l 50 | cut -d', ' -f1)
+
+# parse options
+while [ $# -ge 1 ]; do
+    case "$1" in
+        -d|--config)
+            TAGR_CONF="$2"
+            shift # past argument
+            ;;
+        -c|--clip)
+            TO_CLIPBOARD=1
+            shift # past argument
+            ;;
+        -a|--add)
+            APPEND_MODE=1
+            TAGR_INPUT="$(xclip -o)"
+            ;;
+        -h|--help)
+            echo "Usage: tagr [-d|--config|-c|--clip|-h|--help] [-a|--add]"
+            echo ""
+            echo "A program to manage tags/bookmarks:"
+            echo "    You can either output your existing tags/bookmarks,"
+            echo "    copy them to the clipboard with the -c flag,"
+            echo "    or add new ones from the clipboard with the -a flag."
+            exit 1
+            ;;
+        *)
+            # TODO
+            ;;
+    esac
+    shift # past argument or value
+done
+
+
+get_tagr_list() {
+    # returns tag list from $TAGR_CONF (first entries)
+    awk -F', ' '{print $1}' $TAGR_CONF
+}
+
+get_tagr_menu() {
+    # returns label list for dmenu from $TAGR_CONF (second entries if available)
+    awk -F', ' '{if ($2) print $2; else print $1}' $TAGR_CONF
+}
+
+get_tagr_selection() {
+    # sets TAGR_INDEX, TAGR_TAG
+    local selection
+    local line
+    selection=$(get_tagr_menu | dmenu -i -l $DMENU_L)
+    TAGR_INDEX=$(awk -F', ' -v selection="$selection" \
+                     '{if (($2 && selection==$2) || (!$2 && selection==$1)) print NR}' \
+                     $TAGR_CONF)
+    line=$(sed "${TAGR_INDEX}q;d" $TAGR_CONF)
+    TAGR_TAG=$(echo -n "$line" | cut -d',' -f1)
+}
+
+
+generate_tagr_label() {
+    local web_regex='(https?|ftp|file)://[-[:alnum:]\+&@#/%?=~_|!:,.;]+'
+    if [[ $TAGR_INPUT =~ $web_regex ]]; then
+        TAGR_LABEL=$(echo "$TAGR_INPUT" | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/')
+    else
+        TAGR_LABEL=$TAGR_INPUT
+    fi
+}
+
+
+append_tagr_item() {
+    [ -z "$TAGR_INPUT" ] && echo "Nothing in the clipboard..." && exit 1
+    if grep -q "^$TAGR_INPUT" "$TAGR_CONF"; then
+        notify-send -t $NOTIFY_T "tagr" "Already bookmarked!"
+    else
+        notify-send -t $NOTIFY_T "tagr" "Bookmark $TAGR_LABEL added."
+        generate_tagr_label
+        echo "$TAGR_INPUT, $TAGR_LABEL" >> $TAGR_CONF
+    fi
+}
+
+
+if [[ $APPEND_MODE -eq 1 ]]; then
+    append_tagr_item
+else
+    get_tagr_selection
+    if [[ $TO_CLIPBOARD -eq 1 ]]; then
+        echo -n "$TAGR_TAG" | xclip -selection c
+    else
+        xdotool type "$TAGR_TAG"
+    fi
+fi
