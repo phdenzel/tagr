@@ -49,12 +49,12 @@ done
 
 get_tagr_list() {
     # returns tag list from $TAGR_CONF (first entries)
-    awk -F', ' '{print $1}' $TAGR_CONF
+    awk -F', ' '{if (! $1 ~ /^#/) print $1}' $TAGR_CONF
 }
 
 get_tagr_menu() {
     # returns label list for dmenu from $TAGR_CONF (second entries if available)
-    awk -F', ' '{if ($2) print $2; else print $1}' $TAGR_CONF
+    awk -F', ' '{if ($2) print $2; else if (! $1 ~ /^#/) print $1}' $TAGR_CONF
 }
 
 get_tagr_selection() {
