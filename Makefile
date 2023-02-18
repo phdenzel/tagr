@@ -14,7 +14,7 @@ config:
 	@mkdir -p $(CONF_DIR)
 	@cp tags $(CONF_DIR)/tags
 
-install: config
+install:
 	@mkdir -p $(PREFIX)	
 	@cp tagr $(PREFIX)/
 	@chmod 755 $(PREFIX)/tagr

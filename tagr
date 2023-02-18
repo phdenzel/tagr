@@ -10,10 +10,9 @@ TAGR_LABEL=""
 APPEND_MODE=0
 TO_CLIPBOARD=0
 
+DMENU_EXE=dmenu
 DMENU_L=20
 NOTIFY_T=3500
-
-# xdotool type $(grep -v '^#' $TAGR_CONF | dmenu -i -l 50 | cut -d', ' -f1)
 
 # parse options
 while [ $# -ge 1 ]; do
@@ -61,12 +60,18 @@ get_tagr_selection() {
     # sets TAGR_INDEX, TAGR_TAG
     local selection
     local line
-    selection=$(get_tagr_menu | dmenu -i -l $DMENU_L)
-    TAGR_INDEX=$(awk -F', ' -v selection="$selection" \
-                     '{if (($2 && selection==$2) || (!$2 && selection==$1)) print NR}' \
-                     $TAGR_CONF)
-    line=$(sed "${TAGR_INDEX}q;d" $TAGR_CONF)
-    TAGR_TAG=$(echo -n "$line" | cut -d',' -f1)
+    selection=$(get_tagr_menu | $DMENU_EXE -c -l $DMENU_L)
+    if [ -n "$selection" ]; then
+        TAGR_INDEX=$(awk -F', ' -v selection="$selection" \
+                         '{if (($2 && selection==$2) || (!$2 && selection==$1)) print NR}' \
+                         $TAGR_CONF)
+        line=$(sed "${TAGR_INDEX}q;d" $TAGR_CONF)
+        TAGR_TAG=$(echo -n "$line" | cut -d',' -f1)
+    else
+        TAGR_INDEX=""
+        line=""
+        TAGR_TAG=""
+    fi
 }
 
 
