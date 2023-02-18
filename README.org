@@ -6,7 +6,7 @@
 This is a tagging/bookmarking program. Similar to the
 dmenu-integration for ~pass~, ~tagr~ can access its tags using dmenu.
 It stores and retrieves tags from a single file stored locally in
-~$XDG_CONFIG_HOME~, by defaults in ~~/.config/tagr/~.
+~$XDG_CONFIG_HOME~, by defaults in ~$HOME/.config/tagr/~.
 
 
 * Install
