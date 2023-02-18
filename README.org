@@ -1,4 +1,4 @@
-\#+AUTHOR: phdenzel
+#+AUTHOR: phdenzel
 #+TITLE: tagr
 #+DATE: 2022-11-04 Fri
 #+OPTIONS: author:nil title:t date:nil timestamp:nil toc:nil num:nil \n:nil
